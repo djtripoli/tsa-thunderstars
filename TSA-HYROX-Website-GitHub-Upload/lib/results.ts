@@ -42,7 +42,8 @@ export function parseRows(rows: unknown[][]): Athlete[] {
     const ageRaw = String(row[ageI] ?? '').trim().replace(/\s/g,'').replace(/[–—-]/g,'/');
     const ageBand = ageBands.find(b => b === ageRaw);
     if (!name || !gender || !ageBand) return [];
-    const status = String(row[statusI] ?? '').trim();
+    const rawStatus = String(row[statusI] ?? '').trim();
+    const status = /^(dnf|did not finish)$/i.test(rawStatus) ? 'DNF' : /^(dq|disqualified)$/i.test(rawStatus) ? 'DQ' : /^finished$/i.test(rawStatus) ? 'Finished' : rawStatus;
     const seconds = /^finished$/i.test(status) ? parseTime(row[timeI]) : null;
     return [{ id: String(i + 2), name, gender, ageBand, status, seconds, time: seconds === null ? null : formatTime(seconds) }];
   });
